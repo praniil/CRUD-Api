@@ -105,18 +105,53 @@ func GetStudent(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(student)
 }
 
-//"id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
-//fetch := action of retrieving or getting the desired data from database
-func GetAllStudent(w http.ResponseWriter, r * http.Request){
+// "id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
+// fetch := action of retrieving or getting the desired data from database
+func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	students, err := getAllStudent()
 
-	if err!= nil{
+	if err != nil {
 		log.Fatalf("unable to get all the student. %v", err)
 	}
 
 	json.NewEncoder(w).Encode(students)
+
+}
+
+func UpdateStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	//get the user id from req params, key "id"
+	params := mux.Vars(r)
+
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		log.Fatalf("Unable to convert string to int. %v", err)
+	}
+
+	var student models.Students
+	err = json.NewDecoder(r.Body).Decode(&student) //request lai decode
+
+	if err != nil {
+		log.Fatalf("Unable to decode request body. %v", err)
+	}
+
+	updatedRows := updateUser(int64(id), student)
+
+	//message
+	msg := fmt.Sprintf("Student updated successfully. Total rows affected %v", updatedRows)
+
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+
+	json.NewEncoder(w).Encode(res)
 
 }
