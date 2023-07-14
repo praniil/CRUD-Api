@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
@@ -53,7 +54,7 @@ func Database_connection() *gorm.DB {
 }
 
 // Api Endpoint Handlers
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateStudent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
@@ -82,4 +83,24 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 //get user
 
+func GetStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlendcoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
+	//get the student id from request params, key is "id"
+	params := mux.Vars(r)
+
+	id, err := strconv.Atoi(params["id"]) //convert the id type from string to int
+	if err != nil {
+		log.Fatalf("Unable to converty the string to int . %v", err)
+
+	}
+
+	//call getStudent func with user id ot retrieve a single user
+	student, err := getStudent(int64(id))
+	if err != nil {
+		log.Fatalf("unable to get user. %v", err)
+	}
+
+	json.NewEncoder(w).Encode(student)
+}
