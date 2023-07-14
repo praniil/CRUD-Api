@@ -84,7 +84,7 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 //get user
 
 func GetStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "application/x-www-form-urlendcoded")
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//get the student id from request params, key is "id"
@@ -103,4 +103,20 @@ func GetStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(student)
+}
+
+//"id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
+//fetch := action of retrieving or getting the desired data from database
+func GetAllStudent(w http.ResponseWriter, r * http.Request){
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	students, err := getAllStudent()
+
+	if err!= nil{
+		log.Fatalf("unable to get all the student. %v", err)
+	}
+
+	json.NewEncoder(w).Encode(students)
+
 }
