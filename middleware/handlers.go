@@ -106,21 +106,21 @@ func GetStudent(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(student)
 }
 
-// // "id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
-// // fetch := action of retrieving or getting the desired data from database
-// func GetAllStudent(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+// "id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
+// fetch := action of retrieving or getting the desired data from database
+func GetAllStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-// 	students, err := getAllStudent()
+	students, err := getAllStudent()
 
-// 	if err != nil {
-// 		log.Fatalf("unable to get all the student. %v", err)
-// 	}
+	if err != nil {
+		log.Fatalf("unable to get all the student. %v", err)
+	}
 
-// 	json.NewEncoder(w).Encode(students)
+	json.NewEncoder(w).Encode(students)
 
-// }
+}
 
 // func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 // 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
@@ -204,4 +204,15 @@ func getStudent(id int64) (models.Users, error) {
 
 	return student, nil
 
+}
+
+func getAllStudent() ([]models.Users, error){
+	db := Database_connection()
+	var students []models.Users
+	//retrieve all students from db
+	result:= db.Find(&students)
+	if result.Error != nil{
+		log.Fatalf("unable to find students. %v", result.Error)
+	}
+	return students, nil
 }
