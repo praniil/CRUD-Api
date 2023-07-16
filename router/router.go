@@ -10,6 +10,7 @@ import (
 
 func Router() *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/api/newstudent", middleware.CreateStudent).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/newstudent", middleware.CreateStudent).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getstudent/{id}", middleware.GetStudent).Methods("GET", "OPTIONS")
 	return router
 }

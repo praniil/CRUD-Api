@@ -3,6 +3,7 @@ package middleware
 //middleware package serves as the bridge between APIs and the database, handling all crud operation
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go-postgres/models"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
@@ -82,27 +84,27 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 //get user
 
-// func GetStudent(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+func GetStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-// 	//get the student id from request params, key is "id"
-// 	params := mux.Vars(r)
+	//get the student id from request params, key is "id"
+	params := mux.Vars(r)
 
-// 	id, err := strconv.Atoi(params["id"]) //convert the id type from string to int
-// 	if err != nil {
-// 		log.Fatalf("Unable to converty the string to int . %v", err)
+	id, err := strconv.Atoi(params["id"]) //convert the id type from string to int
+	if err != nil {
+		log.Fatalf("Unable to convert the string to int . %v", err)
 
-// 	}
+	}
 
-// 	//call getStudent func with user id ot retrieve a single user
-// 	student, err := getStudent(int64(id))
-// 	if err != nil {
-// 		log.Fatalf("unable to get user. %v", err)
-// 	}
+	//call getStudent func with user id ot retrieve a single user
+	student, err := getStudent(int64(id))
+	if err != nil {
+		log.Fatalf("unable to get user. %v", err)
+	}
 
-// 	json.NewEncoder(w).Encode(student)
-// }
+	json.NewEncoder(w).Encode(student)
+}
 
 // // "id" parameter is used when retrieving a single user in the 'GetUser' fn, to fetch a specific user based on the provided id
 // // fetch := action of retrieving or getting the desired data from database
@@ -184,4 +186,22 @@ func insertStudent(student models.Users) int64 {
 	}
 	fmt.Printf("Inserted a single record %v \n", student.ID)
 	return student.ID
+}
+
+func getStudent(id int64) (models.Users, error) {
+	db := Database_connection()
+
+	var student models.Users
+	//finding student by id
+	result := db.First(&student, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		fmt.Println("no rows were returned")
+		return student, nil
+	} else if result.Error != nil {
+		log.Fatalf("unable to query the user. %v", result.Error)
+		return student, result.Error
+	}
+
+	return student, nil
+
 }
