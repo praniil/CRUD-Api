@@ -122,40 +122,35 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func UpdateStudent(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-// 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-// 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+func UpdateStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-// 	//get the user id from req params, key "id"
-// 	params := mux.Vars(r)
+	//get the user id from req params, key "id"
 
-// 	id, err := strconv.Atoi(params["id"])
-// 	if err != nil {
-// 		log.Fatalf("Unable to convert string to int. %v", err)
-// 	}
 
-// 	var student models.Students
-// 	err = json.NewDecoder(r.Body).Decode(&student) //request lai decode
+	var student models.Users
+	err := json.NewDecoder(r.Body).Decode(&student) //request lai decode
 
-// 	if err != nil {
-// 		log.Fatalf("Unable to decode request body. %v", err)
-// 	}
+	if err != nil {
+		log.Fatalf("Unable to decode request body. %v", err)
+	}
+	fmt.Println(student.ID)
+	updatedRows := updateStudent(student.ID, student)
 
-// 	updatedRows := updateUser(int64(id), student)
+	// message
+	msg := fmt.Sprintf("Student updated successfully. Total rows affected %v", updatedRows)
 
-// 	//message
-// 	msg := fmt.Sprintf("Student updated successfully. Total rows affected %v", updatedRows)
+	res := Response{
+		ID:      student.ID,
+		Message: msg,
+	}
 
-// 	res := response{
-// 		ID:      int64(id),
-// 		Message: msg,
-// 	}
+	json.NewEncoder(w).Encode(res)
 
-// 	json.NewEncoder(w).Encode(res)
-
-// }
+}
 
 // func DeleteUser(w http.ResponseWriter, r *http.Request){
 // 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
@@ -206,13 +201,24 @@ func getStudent(id int64) (models.Users, error) {
 
 }
 
-func getAllStudent() ([]models.Users, error){
+func getAllStudent() ([]models.Users, error) {
 	db := Database_connection()
 	var students []models.Users
 	//retrieve all students from db
-	result:= db.Find(&students)
-	if result.Error != nil{
+	result := db.Find(&students)
+	if result.Error != nil {
 		log.Fatalf("unable to find students. %v", result.Error)
 	}
 	return students, nil
+}
+
+func updateStudent(id int64, student models.Users) int64 {
+	db := Database_connection()
+	result := db.Model(&models.Users{}).Where("id = ?", id).Updates(student)
+	if result.Error != nil {
+		log.Fatalf("Unable to update student: %v", result.Error)
+	}
+	rowsAffected := result.RowsAffected
+	log.Printf("total rows affected: %d", rowsAffected)
+	return rowsAffected
 }
