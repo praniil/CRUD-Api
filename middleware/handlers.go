@@ -130,7 +130,6 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 	//get the user id from req params, key "id"
 
-
 	var student models.Users
 	err := json.NewDecoder(r.Body).Decode(&student) //request lai decode
 
@@ -152,24 +151,32 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func DeleteUser(w http.ResponseWriter, r *http.Request){
-// 	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-// 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-// 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+func DeleteStudent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-// 	//get the userId from the req params "id"
+	//get the userId from the req params "id"
 
-// 	params := mux.Vars(r)
+	params := mux.Vars(r)
 
-// 	id, err:= strconv.Atoi(params["id"])
+	id, err := strconv.Atoi(params["id"])
+	fmt.Println(id)
 
-// 	if err!= nil{
-// 		log.Fatalf("Unable to convert the string into int. %v", err)
-// 	}
+	if err != nil {
+		log.Fatalf("Unable to convert the string into int. %v", err)
+	}
 
-// 	deletedRows :=
-// }
+	deletedRows := deleteStudent(int64(id))
+	msg := fmt.Sprintf("User updated successfully. Total rows affected: %v", deletedRows)
+
+	res := Response{
+		ID:      int64(id),
+		Message: msg,
+	}
+	json.NewEncoder(w).Encode(res)
+}
 
 // insert one user in db
 func insertStudent(student models.Users) int64 {
@@ -220,5 +227,15 @@ func updateStudent(id int64, student models.Users) int64 {
 	}
 	rowsAffected := result.RowsAffected
 	log.Printf("total rows affected: %d", rowsAffected)
+	return rowsAffected
+}
+
+func deleteStudent(id int64) int64 {
+	db := Database_connection()
+	result := db.Delete(&models.Users{}, id)
+	if result.Error != nil {
+		log.Fatalf("the record is not deleted")
+	}
+	rowsAffected := result.RowsAffected
 	return rowsAffected
 }
