@@ -8,6 +8,7 @@ import (
 
 //Router is exported and used in main.go
 
+
 func Router() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/api/newstudent", middleware.CreateStudent).Methods("POST", "OPTIONS")
